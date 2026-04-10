@@ -3,21 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Where to eat?</title>
+  <title>Random place picker</title>
   <style>
-    body { font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 2rem 1rem; }
-    textarea { width: 100%; height: 140px; font-size: 14px; padding: 10px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; font-size: 15px; cursor: pointer; margin-top: 12px; }
+    body { font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 2rem 1rem; color: #111; }
+    .card { background: #f5f5f5; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+    .label { font-size: 13px; color: #666; display: block; margin-bottom: 6px; }
+    .label-bold { font-size: 13px; font-weight: 500; margin: 0 0 4px; }
+    .hint { font-size: 12px; color: #888; margin: 10px 0 0; }
+    textarea { width: 100%; height: 140px; font-size: 14px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 6px; font-family: sans-serif; resize: vertical; }
+    button { width: 100%; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; border: 1px solid #ccc; border-radius: 6px; background: #fff; margin-top: 4px; }
+    button:hover { background: #f5f5f5; }
     #result-box { margin-top: 1.5rem; background: #f5f5f5; border-radius: 8px; padding: 1.25rem; text-align: center; }
-    #error-msg { color: red; font-size: 13px; margin-top: 8px; display: none; }
+    #error-msg { color: red; font-size: 13px; margin-top: 8px; display: none; text-align: center; }
+    .bookmarklet { display: inline-block; font-size: 13px; padding: 6px 14px; border-radius: 6px; border: 1px solid #ccc; background: #fff; color: #111; cursor: grab; text-decoration: none; user-select: none; }
+    .bookmarklet:hover { background: #f5f5f5; }
   </style>
 </head>
 <body>
 
-  <h1 style="font-size: 22px; font-weight: 500;">Random place picker</h1>
-  <p style="color: #666; font-size: 14px;">Paste your Google Maps list, get a random place.</p>
+  <h1 style="font-size: 22px; font-weight: 500; margin-bottom: 6px;">Random place picker</h1>
+  <p style="color: #666; font-size: 14px; margin-top: 0;">Paste your Google Maps list, get a random place.</p>
 
-  <label style="font-size: 13px;">Paste your places (one per line)</label>
+  <div class="card">
+    <p class="label-bold">Step 1 — set up the bookmarklet</p>
+    <p class="label" style="margin-bottom: 12px;">Drag this button to your bookmarks bar. You only need to do this once.</p>
+    <a class="bookmarklet"
+      href="javascript:(function(){const els=document.querySelectorAll('.fontHeadlineSmall');const places=[...els].map(e=>e.textContent.trim()).filter(Boolean);if(places.length===0){alert('No places found. Make sure you have scrolled through your full list.');}else{navigator.clipboard.writeText(places.join('\n')).then(()=>alert('Copied '+places.length+' places to clipboard!'));}})();"
+      onclick="return false;">
+      ☰ Copy my places
+    </a>
+    <p class="hint">Then go to your Google Maps list, scroll to the bottom, and click it.</p>
+  </div>
+
+  <label class="label">Step 2 — paste your places (one per line)</label>
   <textarea id="places-input" placeholder="Dishoom&#10;Padella&#10;St. John"></textarea>
 
   <button id="pick-btn">Pick a random place</button>
