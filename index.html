@@ -23,17 +23,6 @@
       max-width: 480px;
     }
 
-    .badge {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 500;
-      color: #555;
-      border: 1px solid #ddd;
-      border-radius: 999px;
-      padding: 4px 12px;
-      margin-bottom: 1.5rem;
-    }
-
     h1 {
       font-size: 2.2rem;
       font-weight: 700;
@@ -173,6 +162,25 @@
 
     .btn-ghost:hover { background: #f5f5f5; }
 
+    .textarea-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    #share-btn {
+      flex: 1;
+    }
+
+    #share-confirm {
+      display: none;
+      font-size: 13px;
+      color: #090;
+      text-align: center;
+      margin-top: 6px;
+    }
+
     #error-msg {
       color: #c00;
       font-size: 13px;
@@ -218,7 +226,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Where to eat</h1>
+    <h1>Where to eat?</h1>
     <p class="subtitle">Pick a random place to eat from your Google Maps saved list.</p>
 
     <div class="card">
@@ -238,6 +246,11 @@
     </div>
     <textarea id="places-input" placeholder="Paste from bookmarklet, or type one place per line"></textarea>
 
+    <div class="textarea-actions">
+      <button id="share-btn" class="btn-ghost">Copy link to list</button>
+    </div>
+    <div id="share-confirm">Link copied — send it to your phone to load this list.</div>
+
     <button id="pick-btn" class="btn-primary">Pick a random place</button>
     <div id="error-msg"></div>
 
@@ -255,8 +268,18 @@
   <script>
     const textarea = document.getElementById('places-input');
 
-    const saved = localStorage.getItem('places');
-    if (saved) textarea.value = saved;
+    // Load from URL parameter first, then fall back to localStorage
+    const params = new URLSearchParams(window.location.search);
+    const urlPlaces = params.get('places');
+    if (urlPlaces) {
+      textarea.value = urlPlaces;
+      localStorage.setItem('places', urlPlaces);
+      // Clean the URL without reloading the page
+      window.history.replaceState({}, '', window.location.pathname);
+    } else {
+      const saved = localStorage.getItem('places');
+      if (saved) textarea.value = saved;
+    }
 
     textarea.addEventListener('input', function() {
       localStorage.setItem('places', this.value);
@@ -268,7 +291,24 @@
         localStorage.removeItem('places');
         document.getElementById('result-box').style.display = 'none';
         document.getElementById('error-msg').style.display = 'none';
+        document.getElementById('share-confirm').style.display = 'none';
       }
+    });
+
+    document.getElementById('share-btn').addEventListener('click', function() {
+      const value = textarea.value.trim();
+      if (!value) {
+        alert('Paste your places first before sharing.');
+        return;
+      }
+      const url = window.location.origin + window.location.pathname + '?places=' + encodeURIComponent(value);
+      navigator.clipboard.writeText(url).then(function() {
+        const confirm = document.getElementById('share-confirm');
+        confirm.style.display = 'block';
+        setTimeout(() => confirm.style.display = 'none', 4000);
+      }).catch(function() {
+        prompt('Copy this link and send it to your phone:', url);
+      });
     });
 
     function parsePlaces(raw) {
