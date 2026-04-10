@@ -28,7 +28,7 @@
     <p style="font-size: 13px; font-weight: 500; margin: 0 0 4px;">Step 1 — set up the bookmarklet</p>
     <p class="label" style="margin-bottom: 12px;">Drag this to your bookmarks bar. You only need to do this once.</p>
     <a class="btn bookmarklet"
-      href="javascript:(function(){var results=[];var selectors=['.fontHeadlineSmall','h3.fontHeadlineSmall'];var found=false;for(var i=0;i<selectors.length;i++){var els=document.querySelectorAll(selectors[i]);if(els.length>0){found=true;Array.from(els).forEach(function(el){var name=el.textContent.trim();var parent=el.parentElement;while(parent&&parent.tagName!=='A'){parent=parent.parentElement;}var url=(parent&&parent.tagName==='A'&&parent.href.indexOf('/maps/place/')>-1)?parent.href:'';if(name)results.push(name+'|'+url);});break;}}if(!found||results.length===0){alert('Could not find any places. Make sure you are on your saved list page and have scrolled to the bottom.');}else{var text=results.join('\n');navigator.clipboard.writeText(text).then(function(){alert('Copied '+results.length+' places to clipboard!');}).catch(function(){prompt('Copy this manually:',text);});}})();"
+      href="javascript:(function(){var places=[];var selectors=['.fontHeadlineSmall','h3.fontHeadlineSmall','[class*=fontHeadlineSmall]'];for(var i=0;i<selectors.length;i++){var els=document.querySelectorAll(selectors[i]);if(els.length>0){places=Array.from(els).map(function(e){return e.textContent.trim();}).filter(Boolean);break;}}if(places.length===0){alert('Could not find any places. Make sure you are on your saved list page and have scrolled to the bottom.');}else{navigator.clipboard.writeText(places.join('\n')).then(function(){alert('Copied '+places.length+' places to clipboard!');}).catch(function(){prompt('Copy this manually:',places.join('\n'));});}})();"
       onclick="return false;">
       ☰ Copy my places
     </a>
@@ -55,13 +55,7 @@
       return raw
         .split('\n')
         .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .map(line => {
-          const parts = line.split('|');
-          const name = parts[0].trim();
-          const url = parts[1] ? parts[1].trim() : '';
-          return { name, url };
-        });
+        .filter(line => line.length > 0);
     }
 
     function pickPlace() {
@@ -90,10 +84,8 @@
       }
 
       const random = places[Math.floor(Math.random() * places.length)];
-      resultName.textContent = random.name;
-      mapsLink.href = random.url
-        ? random.url
-        : 'https://www.google.com/maps/search/' + encodeURIComponent(random.name);
+      resultName.textContent = random;
+      mapsLink.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(random);
       resultBox.style.display = 'block';
     }
 
