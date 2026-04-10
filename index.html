@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random place picker</title>
+  <title>Where to eat</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -200,11 +200,8 @@
 </head>
 <body>
   <div class="container">
-
-    <span class="badge">Google Maps ↗</span>
-
-    <h1>Random place picker</h1>
-    <p class="subtitle">Pick a random place from your Google Maps saved list.</p>
+    <h1>Where to eat</h1>
+    <p class="subtitle">Pick a random place to eat from your Google Maps saved list.</p>
 
     <div class="card">
       <p class="card-title">Step 1 — set up the bookmarklet</p>
@@ -212,7 +209,7 @@
       <a class="bookmarklet"
         href="javascript:(function(){var places=[];var selectors=['.fontHeadlineSmall','h3.fontHeadlineSmall','[class*=fontHeadlineSmall]'];for(var i=0;i<selectors.length;i++){var els=document.querySelectorAll(selectors[i]);if(els.length>0){places=Array.from(els).map(function(e){return e.textContent.trim();}).filter(Boolean);break;}}if(places.length===0){alert('Could not find any places. Make sure you are on your saved list page and have scrolled to the bottom.');}else{navigator.clipboard.writeText(places.join('\n')).then(function(){alert('Copied '+places.length+' places to clipboard!');}).catch(function(){prompt('Copy this manually:',places.join('\n'));});}})();"
         onclick="return false;">
-        ☰ Copy my places
+        Copy my places
       </a>
       <p class="hint">Then go to your Google Maps list, scroll to the bottom, and click it.</p>
     </div>
