@@ -8,15 +8,15 @@
     body { font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 2rem 1rem; color: #111; }
     .card { background: #f5f5f5; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
     .label { font-size: 13px; color: #666; display: block; margin-bottom: 6px; }
-    .label-bold { font-size: 13px; font-weight: 500; margin: 0 0 4px; }
     .hint { font-size: 12px; color: #888; margin: 10px 0 0; }
     textarea { width: 100%; height: 140px; font-size: 14px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 6px; font-family: sans-serif; resize: vertical; }
-    button { width: 100%; padding: 10px; font-size: 15px; font-weight: 500; cursor: pointer; border: 1px solid #ccc; border-radius: 6px; background: #fff; margin-top: 4px; }
-    button:hover { background: #f5f5f5; }
-    #result-box { margin-top: 1.5rem; background: #f5f5f5; border-radius: 8px; padding: 1.25rem; text-align: center; }
+    .btn { font-size: 14px; padding: 8px 16px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer; text-decoration: none; color: #111; display: inline-block; }
+    .btn:hover { background: #f5f5f5; }
+    .btn-full { width: 100%; padding: 10px; font-size: 15px; font-weight: 500; box-sizing: border-box; }
+    #result-box { display: none; margin-top: 1.5rem; background: #f5f5f5; border-radius: 8px; padding: 1.5rem; text-align: center; }
+    #result-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
     #error-msg { color: red; font-size: 13px; margin-top: 8px; display: none; text-align: center; }
-    .bookmarklet { display: inline-block; font-size: 13px; padding: 6px 14px; border-radius: 6px; border: 1px solid #ccc; background: #fff; color: #111; cursor: grab; text-decoration: none; user-select: none; }
-    .bookmarklet:hover { background: #f5f5f5; }
+    .bookmarklet { cursor: grab; user-select: none; }
   </style>
 </head>
 <body>
@@ -25,9 +25,9 @@
   <p style="color: #666; font-size: 14px; margin-top: 0;">Paste your Google Maps list, get a random place.</p>
 
   <div class="card">
-    <p class="label-bold">Step 1 — set up the bookmarklet</p>
-    <p class="label" style="margin-bottom: 12px;">Drag this button to your bookmarks bar. You only need to do this once.</p>
-    <a class="bookmarklet"
+    <p style="font-size: 13px; font-weight: 500; margin: 0 0 4px;">Step 1 — set up the bookmarklet</p>
+    <p class="label" style="margin-bottom: 12px;">Drag this to your bookmarks bar. You only need to do this once.</p>
+    <a class="btn bookmarklet"
       href="javascript:(function(){const els=document.querySelectorAll('.fontHeadlineSmall');const places=[...els].map(e=>e.textContent.trim()).filter(Boolean);if(places.length===0){alert('No places found. Make sure you have scrolled through your full list.');}else{navigator.clipboard.writeText(places.join('\n')).then(()=>alert('Copied '+places.length+' places to clipboard!'));}})();"
       onclick="return false;">
       ☰ Copy my places
@@ -38,19 +38,25 @@
   <label class="label">Step 2 — paste your places (one per line)</label>
   <textarea id="places-input" placeholder="Dishoom&#10;Padella&#10;St. John"></textarea>
 
-  <button id="pick-btn">Pick a random place</button>
+  <button id="pick-btn" class="btn btn-full" style="margin-top: 12px;">Pick a random place</button>
   <div id="error-msg"></div>
 
   <div id="result-box">
-    <p style="font-size: 13px; color: #666; margin: 0 0 4px;">Your random place is</p>
-    <p id="result-name" style="font-size: 22px; font-weight: 500; margin: 0;">—</p>
+    <p style="font-size: 13px; color: #666; margin: 0 0 6px;">Your random place is</p>
+    <p id="result-name" style="font-size: 24px; font-weight: 500; margin: 0;">—</p>
+    <div id="result-actions">
+      <a id="maps-link" class="btn" href="#" target="_blank">Open in Google Maps</a>
+      <button id="pick-again-btn" class="btn">Pick again</button>
+    </div>
   </div>
 
   <script>
-    document.getElementById('pick-btn').addEventListener('click', function() {
+    function pickPlace() {
       const input = document.getElementById('places-input').value;
       const errorMsg = document.getElementById('error-msg');
+      const resultBox = document.getElementById('result-box');
       const resultName = document.getElementById('result-name');
+      const mapsLink = document.getElementById('maps-link');
 
       errorMsg.style.display = 'none';
 
@@ -62,18 +68,25 @@
       if (places.length === 0) {
         errorMsg.textContent = 'Paste at least one place first.';
         errorMsg.style.display = 'block';
+        resultBox.style.display = 'none';
         return;
       }
 
       if (places.length === 1) {
         errorMsg.textContent = 'Add more than one place to get a random pick.';
         errorMsg.style.display = 'block';
+        resultBox.style.display = 'none';
         return;
       }
 
       const random = places[Math.floor(Math.random() * places.length)];
       resultName.textContent = random;
-    });
+      mapsLink.href = 'https://www.google.com/maps/search/' + encodeURIComponent(random);
+      resultBox.style.display = 'block';
+    }
+
+    document.getElementById('pick-btn').addEventListener('click', pickPlace);
+    document.getElementById('pick-again-btn').addEventListener('click', pickPlace);
   </script>
 
 </body>
